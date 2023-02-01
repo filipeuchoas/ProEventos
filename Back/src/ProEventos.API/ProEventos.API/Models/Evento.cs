@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace ProEventos.API.Models
+﻿namespace ProEventos.API.Models
 {
     public class Evento
     {
