@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
 using ProEventos.Application.Contratos;
 using ProEventos.Application.DTO;
 using ProEventos.Domain;
@@ -63,7 +62,7 @@ namespace ProEventos.Application
                 if (await _geralPersist.SaveChangesAsync())
                 {
                     var eventoRetorno = await _eventoPersist.GetEventoByIdAsync(evento.Id, false);
-                    return _mapper.Map<EventoDTO>(eventoRetorno.Id);
+                    return _mapper.Map<EventoDTO>(eventoRetorno);
                 }
                 return null;
             }
