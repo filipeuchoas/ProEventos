@@ -11,11 +11,11 @@ namespace ProEventos.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventosController : ControllerBase
+    public class EventoController : ControllerBase
     {
         private readonly IEventoService _eventoService;
 
-        public EventosController(IEventoService eventoService)
+        public EventoController(IEventoService eventoService)
         {
             _eventoService = eventoService;
         }
@@ -28,24 +28,7 @@ namespace ProEventos.API.Controllers
                 var eventos = await _eventoService.GetAllEventosAsync(true);
                 if (eventos == null) return NoContent();
 
-                var eventosRetorno = new List<EventoDTO>();
-
-                foreach (var evento in eventos)
-                {
-                    eventosRetorno.Add(new EventoDTO
-                    {
-                        Id = evento.Id,
-                        Local = evento.Local,
-                        DataEvento = evento.DataEvento,
-                        Tema = evento.Tema,
-                        QtdPessoas = evento.QtdPessoas,
-                        ImagemURL = evento.ImagemURL,
-                        Telefone = evento.Telefone,
-                        Email = evento.Email
-                    });
-                }
-
-                return Ok(eventosRetorno);
+                return Ok(eventos);
             }
             catch (Exception ex)
             {
