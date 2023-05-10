@@ -1,5 +1,5 @@
 <div class="row">
-  <div >
+  <div [ngClass]="{'col-md-8 pr-0': modoEditar, 'col-md-12': !modoEditar}">
     <div class="card rounded shadow-sm">
       <form [formGroup]="form">
         <div class="p-3">
@@ -50,7 +50,7 @@
                 Qtd Pessoas deve ser menor que 120000.
               </div>
             </div>
-            <div class="form-group col-md-2">
+            <div class="form-group col-md-4">
               <label>Telefone</label>
               <input type="text" class="form-control" [ngClass]="cssValidator(f.telefone)"
                 formControlName="telefone" placeholder="(000) 90000-0000" [(ngModel)]="evento.telefone">
@@ -58,7 +58,7 @@
                 Telefone é obrigatório.
               </div>
             </div>
-            <div class="form-group col-md-4">
+            <div class="form-group col-md-6">
               <label>e-mail</label>
               <input type="text" class="form-control" [ngClass]="cssValidator(f.email)"
                 formControlName="email" placeholder="e-mail" [(ngModel)]="evento.email">
@@ -67,19 +67,6 @@
               </div>
               <div *ngIf="f.email.errors?.email && f.email.touched" class="invalid-feedback">
                 Deve ser um endereço de e-mail válido
-              </div>
-            </div>
-            <div class="form-group col-md-4">
-              <label>Imagem</label>
-              <input
-                class="form-control"
-                type="text"
-                formControlName="imagemURL"
-                placeholder="imagem"
-                [ngClass]="cssValidator(f.imagemURL)"
-              >
-              <div *ngIf="f.imagemURL.errors?.required" class="invalid-feedback">
-                Imagem é obrigatório.
               </div>
             </div>
 
@@ -98,7 +85,7 @@
         </div>
       </form>
     </div>
-    <div class="card rounded shadow-sm mt-4" *ngIf="modoEditar">
+    <div class="card rounded shadow-sm mt-3" *ngIf="modoEditar">
       <!-- <p> Form value: {{ form.controls['lotes'].value | json }} </p>
       <p> Form valid: {{ form.controls['lotes'].status | json }} </p> -->
       <div class="p-3">
@@ -193,11 +180,60 @@
         </button>
       </div>
     </div>
+    </div>
   </div>
-
+  <div class="col-md-4" *ngIf="modoEditar">
+    <div [formGroup]="form" class="card-evento-view shadow-sm">
+      <div class="form-row">
+        <div class="form-group m-0">
+          <input type="file" #file
+            (change)="onFileChange($event)" class="form-control is-invalid" placeholder="" style="display: none">
+        </div>
+      </div>
+      <div class="card profile-card-2">
+        <div class="card-img-block">
+          <img class="image img-fluid"
+            [src]="imagemURL"
+            alt="Card image cap"
+            tooltip="Upload de Nova Imagem"
+            [adaptivePosition]="false"
+            placeholder="bottom"
+            (click)="file.click()">
+        </div>
+        <div class="card-body pt-3">
+          <h4>{{ evento.tema }}</h4>
+          <p class="card-text">
+            <b>Local:</b> {{ evento.local }}
+            <br>
+            <b>Data:</b> {{ evento.dataEvento | DateFormatPipe }}
+          </p>
+          <hr>
+          <p class="card-text">
+            <b>Contatos</b><br>
+            <small class="text-muted">Telefone: {{ evento.telefone }}</small>
+            <br>
+            <small class="text-muted">E-mail: {{ evento.email }}</small>
+          </p>
+          <p class="card-text">
+            Capacidade:
+            <small class="text-muted"> {{ evento.qtdPessoas }}</small>
+          </p>
+          <div class="row">
+            <div class="icon-block col-md-8 iconesSociais">
+              <a href="">
+                <i class=""></i>
+              </a>
+            </div>
+            <!-- <div class="col-md-4 d-flex justify-content-center">
+              <a href="#" class="btn btn-outline-primary">Participar</a>
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-</div>
 <br>
 
 <ng-template #template>
