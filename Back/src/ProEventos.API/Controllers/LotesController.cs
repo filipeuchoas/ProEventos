@@ -4,16 +4,18 @@ using ProEventos.Application.Contratos;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using ProEventos.Application.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProEventos.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class LoteController : ControllerBase
+    public class LotesController : ControllerBase
     {
         private readonly ILoteService _loteService;
 
-        public LoteController(ILoteService loteService)
+        public LotesController(ILoteService loteService)
         {
             _loteService = loteService;
         }
