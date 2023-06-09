@@ -9,7 +9,7 @@
 
   <div class="col-md-6">
 
-    <form [formGroup]="form" class="p-1">
+    <form [formGroup]="form" class="p-1" (submit)="register()">
       <div class="pb-2 d-block d-md-none">
         <h3 class="border-bottom">Cadastro de Usuário</h3>
       </div>
@@ -94,17 +94,17 @@
           <input
             class="form-control"
             type="password"
-            formControlName="senha"
+            formControlName="password"
             placeholder="Digite uma Senha"
-            [ngClass]="{ 'is-invalid': f.senha.errors && f.senha.touched }"
+            [ngClass]="{ 'is-invalid': f.password.errors && f.password.touched }"
           />
-          <div *ngIf="f.senha.errors?.required" class="invalid-feedback">
+          <div *ngIf="f.password.errors?.required && f.password.touched" class="invalid-feedback">
             Senha é obrigatório.
           </div>
-          <div *ngIf="f.senha.errors?.minlength" class="invalid-feedback">
-            Tema deve ter no mínimo 8 caracteres.
+          <div *ngIf="f.passworderrors?.minlength && f.password.touched" class="invalid-feedback">
+            Tema deve ter no mínimo 6 caracteres.
           </div>
-          <div *ngIf="f.senha.errors?.maxlength" class="invalid-feedback">
+          <div *ngIf="f.password.errors?.maxlength && f.password.touched" class="invalid-feedback">
             Tema deve ter no máximo 50 caracteres.
           </div>
         </div>
@@ -113,42 +113,34 @@
           <input
             class="form-control"
             type="password"
-            formControlName="confirmeSenha"
+            formControlName="confirmePassword"
             placeholder="Confirme a Senha"
-            [ngClass]="{ 'is-invalid': f.confirmeSenha.errors && f.confirmeSenha.touched }"
+            [ngClass]="{ 'is-invalid': f.confirmePassword.errors && f.confirmePassword.touched }"
           />
-          <div *ngIf="f.confirmeSenha.errors?.required" class="invalid-feedback">
+          <div *ngIf="f.confirmePassword.errors?.required" class="invalid-feedback">
             Confirmar Senha é obrigatório.
           </div>
-          <div *ngIf="f.confirmeSenha.errors?.minlength" class="invalid-feedback">
-            Tema deve ter no mínimo 8 caracteres.
+          <div *ngIf="f.confirmePassword.errors?.minlength" class="invalid-feedback">
+            Tema deve ter no mínimo 4 caracteres.
           </div>
-          <div *ngIf="f.confirmeSenha.errors?.maxlength" class="invalid-feedback">
-            Tema deve ter no máximo 50 caracteres.
-          </div>
-          <div *ngIf="f.confirmeSenha.errors?.mustMatch" class="invalid-feedback">
+          <div *ngIf="f.confirmePassword.errors?.mustMatch" class="invalid-feedback">
             Repetir a senha é obrigatório.
           </div>
         </div>
       </div>
       <div class="form-row p-1 mb-3">
         <div class="custom-control custom-checkbox">
-          <input
-            class="custom-control-input"
-            type="checkbox"
-            id="customCheck1"
-            [ngClass]="{ 'is-invalid': f.termoUso.errors && f.termoUso.touched }"
-          />
+          <input type="checkbox" id="customCheck1" class="custom-control-input" />
           <label class="custom-control-label">Eu concordo com os <a href="#">Termos de Uso</a>.</label>
-        </div>
-        <div *ngIf="f.termoUso.errors?.required" class="invalid-feedback">
-          Termos de Uso é obrigatório.
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col-12">
-          <button class="btn btn-lg btn-success btn-block px-5">
-            Registar
+          <button
+            [disabled]="!form.valid"
+            class="btn btn-lg btn-success btn-block px-5"
+            type="submit">
+            Registrar
           </button>
         </div>
       </div>

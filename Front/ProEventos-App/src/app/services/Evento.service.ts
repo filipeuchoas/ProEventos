@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Evento } from '../models/Evento';
@@ -9,12 +9,12 @@ import { environment } from '@environments/environment';
 
 @Injectable()
 export class EventoService {
-  baseURL = environment.apiURL + 'api/evento';
+  baseURL = environment.apiURL + 'api/eventos';
 
   constructor(private http: HttpClient) { }
 
   public getEventos(): Observable<Evento[]>{
-    return this.http.get<Evento[]>(this.baseURL)
+    return this.http.get<Evento[]>(this.baseURL )
     .pipe(take(1));
   }
 
