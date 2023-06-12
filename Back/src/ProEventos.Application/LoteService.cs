@@ -1,11 +1,11 @@
-﻿using AutoMapper;
-using ProEventos.Application.Contratos;
-using ProEventos.Application.DTO;
-using ProEventos.Domain;
-using ProEventos.Persistence.Contratos;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using ProEventos.Application.Contratos;
+using ProEventos.Application.Dtos;
+using ProEventos.Domain;
+using ProEventos.Persistence.Contratos;
 
 namespace ProEventos.Application
 {
@@ -15,18 +15,16 @@ namespace ProEventos.Application
         private readonly ILotePersist _lotePersist;
         private readonly IMapper _mapper;
 
-        public LoteService(
-            IGeralPersist geralPersist,
-            ILotePersist lotePersist,
-            IMapper mapper
-            )
+        public LoteService(IGeralPersist geralPersist,
+                           ILotePersist lotePersist,
+                           IMapper mapper)
         {
             _geralPersist = geralPersist;
             _lotePersist = lotePersist;
             _mapper = mapper;
         }
 
-        public async Task AddLote(int eventoId, LoteDTO model)
+        public async Task AddLote(int eventoId, LoteDto model)
         {
             try
             {
@@ -43,7 +41,7 @@ namespace ProEventos.Application
             }
         }
 
-        public async Task<LoteDTO[]> SaveLotes(int eventoId, LoteDTO[] models)
+        public async Task<LoteDto[]> SaveLotes(int eventoId, LoteDto[] models)
         {
             try
             {
@@ -69,9 +67,9 @@ namespace ProEventos.Application
                     }
                 }
 
-                var lotesRetorno = await _lotePersist.GetLotesByEventoIdAsync(eventoId);
+                var loteRetorno = await _lotePersist.GetLotesByEventoIdAsync(eventoId);
 
-                return _mapper.Map<LoteDTO[]>(lotesRetorno);
+                return _mapper.Map<LoteDto[]>(loteRetorno);
             }
             catch (Exception ex)
             {
@@ -95,14 +93,14 @@ namespace ProEventos.Application
             }
         }
 
-        public async Task<LoteDTO[]> GetLotesByEventoIdAsync(int eventoId)
+        public async Task<LoteDto[]> GetLotesByEventoIdAsync(int eventoId)
         {
             try
             {
                 var lotes = await _lotePersist.GetLotesByEventoIdAsync(eventoId);
                 if (lotes == null) return null;
 
-                var resultado = _mapper.Map<LoteDTO[]>(lotes);
+                var resultado = _mapper.Map<LoteDto[]>(lotes);
 
                 return resultado;
             }
@@ -112,14 +110,14 @@ namespace ProEventos.Application
             }
         }
 
-        public async Task<LoteDTO> GetLoteByIdsAsync(int eventoId, int loteId)
+        public async Task<LoteDto> GetLoteByIdsAsync(int eventoId, int loteId)
         {
             try
             {
                 var lote = await _lotePersist.GetLoteByIdsAsync(eventoId, loteId);
                 if (lote == null) return null;
 
-                var resultado = _mapper.Map<LoteDTO>(lote);
+                var resultado = _mapper.Map<LoteDto>(lote);
 
                 return resultado;
             }

@@ -1,25 +1,34 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ProEventos.API.Extentions;
+using ProEventos.Api.Helpers;
+using ProEventos.API.Extensions;
 using ProEventos.Application.Contratos;
-using ProEventos.Application.DTO;
-using System;
-using System.Threading.Tasks;
+using ProEventos.Application.Dtos;
 
 namespace ProEventos.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/[Controller]")]
-    public class AccountController : Controller
+    [Route("api/[controller]")]
+    public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
         private readonly ITokenService _tokenService;
+        private readonly IUtil _util;
+
+        private readonly string _destino = "Perfil";
 
         public AccountController(IAccountService accountService,
-                                 ITokenService tokenService)
+                                 ITokenService tokenService,
+                                 IUtil util)
         {
+            _util = util;
             _accountService = accountService;
             _tokenService = tokenService;
         }
@@ -42,21 +51,23 @@ namespace ProEventos.API.Controllers
 
         [HttpPost("Register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(UserDTO userDTO)
+        public async Task<IActionResult> Register(UserDto userDto)
         {
             try
             {
-                if (await _accountService.UserExist(userDTO.Username))
+                if (await _accountService.UserExists(userDto.UserName))
                     return BadRequest("Usuário já existe");
 
-                var user = await _accountService.CreateAccountAsync(userDTO);
-                if(user != null) return Ok(new {
-                    userName = user.UserName,
-                    PrimeroNome = user.PrimeiroNome,
-                    token = _tokenService.CreateToken(user).Result
-                });
+                var user = await _accountService.CreateAccountAsync(userDto);
+                if (user != null)
+                    return Ok(new
+                    {
+                        userName = user.UserName,
+                        PrimeroNome = user.PrimeiroNome,
+                        token = _tokenService.CreateToken(user).Result
+                    });
 
-                return BadRequest("Usuário não criado, tente novamente mais tarde");
+                return BadRequest("Usuário não criado, tente novamente mais tarde!");
             }
             catch (Exception ex)
             {
@@ -67,7 +78,7 @@ namespace ProEventos.API.Controllers
 
         [HttpPost("Login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login(UserLoginDTO userLogin)
+        public async Task<IActionResult> Login(UserLoginDto userLogin)
         {
             try
             {
@@ -81,7 +92,7 @@ namespace ProEventos.API.Controllers
                 {
                     userName = user.UserName,
                     PrimeroNome = user.PrimeiroNome,
-                    token = _tokenService.CreateToken(user).Result 
+                    token = _tokenService.CreateToken(user).Result
                 });
             }
             catch (Exception ex)
@@ -92,18 +103,18 @@ namespace ProEventos.API.Controllers
         }
 
         [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateUser(UserUpdateDTO userUpdate)
+        public async Task<IActionResult> UpdateUser(UserUpdateDto userUpdateDto)
         {
             try
             {
-                if (userUpdate.UserName != User.GetUserName())
-                    return Unauthorized("Usuário inválido");
+                if (userUpdateDto.UserName != User.GetUserName())
+                    return Unauthorized("Usuário Inválido");
 
                 var user = await _accountService.GetUserByUserNameAsync(User.GetUserName());
                 if (user == null) return Unauthorized("Usuário Inválido");
 
-                var userReturn = await _accountService.UpdateAccountAsync(userUpdate);
-                if(userReturn == null) return NoContent();
+                var userReturn = await _accountService.UpdateAccount(userUpdateDto);
+                if (userReturn == null) return NoContent();
 
                 return Ok(new
                 {
@@ -115,7 +126,32 @@ namespace ProEventos.API.Controllers
             catch (Exception ex)
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar recuperar Usuário. Erro: {ex.Message}");
+                    $"Erro ao tentar Atualizar Usuário. Erro: {ex.Message}");
+            }
+        }
+
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImage()
+        {
+            try
+            {
+                var user = await _accountService.GetUserByUserNameAsync(User.GetUserName());
+                if (user == null) return NoContent();
+
+                var file = Request.Form.Files[0];
+                if (file.Length > 0)
+                {
+                    _util.DeleteImage(user.ImagemURL, _destino);
+                    user.ImagemURL = await _util.SaveImage(file, _destino);
+                }
+                var userRetorno = await _accountService.UpdateAccount(user);
+
+                return Ok(userRetorno);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Erro ao tentar realizar upload de Foto do Usuário. Erro: {ex.Message}");
             }
         }
     }

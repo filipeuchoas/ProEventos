@@ -1,7 +1,6 @@
-import { DatePipe } from '@angular/common';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Component, OnInit, TemplateRef } from '@angular/core';
-import {
-  AbstractControl,
+import { AbstractControl,
   FormArray,
   FormBuilder,
   FormControl,
@@ -12,13 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BsLocaleService } from 'ngx-bootstrap/datepicker';
 import { ToastrService } from 'ngx-toastr';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
+import { LoteService } from './../../../services/lote.service';
 import { EventoService } from '@app/services/evento.service';
 import { Evento } from '@app/models/Evento';
 import { Lote } from '@app/models/Lote';
-import { LoteService } from '@app/services/lote.service';
-
+import { DatePipe } from '@angular/common';
 import { environment } from '@environments/environment';
 
 @Component({
@@ -28,18 +26,14 @@ import { environment } from '@environments/environment';
   providers: [DatePipe],
 })
 export class EventoDetalheComponent implements OnInit {
-  modalRef!: BsModalRef;
-  eventoId!: number;
+  modalRef: BsModalRef;
+  eventoId: number;
   evento = {} as Evento;
-  form!: FormGroup;
+  form: FormGroup;
   estadoSalvar = 'post';
-  loteAtual: {
-    id: number,
-    nome: string,
-    indice: number
-  };
+  loteAtual = { id: 0, nome: '', indice: 0 };
   imagemURL = 'assets/img/upload.png';
-  file!: File[];
+  file: File;
 
   get modoEditar(): boolean {
     return this.estadoSalvar === 'put';
@@ -62,77 +56,67 @@ export class EventoDetalheComponent implements OnInit {
     };
   }
 
-  get bsConfigLote(): any {
-    return {
-      adaptivePosition: true,
-      dateInputFormat: 'DD/MM/YYYY',
-      containerClass: 'theme-default',
-      showWeekNumbers: false,
-    };
-  }
-
   constructor(
     private fb: FormBuilder,
     private localeService: BsLocaleService,
     private activatedRouter: ActivatedRoute,
     private eventoService: EventoService,
     private spinner: NgxSpinnerService,
-    private toaster: ToastrService,
+    private toastr: ToastrService,
+    private modalService: BsModalService,
     private router: Router,
     private loteService: LoteService,
-    private modalService: BsModalService
+    private datePipe: DatePipe
   ) {
     this.localeService.use('pt-br');
-    this.loteAtual = {
-      id: 0,
-      nome: '',
-      indice: 0
-    };
   }
 
   public carregarEvento(): void {
-    this.eventoId = +this.activatedRouter.snapshot.paramMap.get('id')!;
+    this.eventoId = +this.activatedRouter.snapshot.paramMap.get('id');
 
-    if(this.eventoId !== null && this.eventoId !== 0){
+    if (this.eventoId !== null && this.eventoId !== 0) {
       this.spinner.show();
 
       this.estadoSalvar = 'put';
 
-      this.eventoService.getEventoById(this.eventoId).subscribe(
-        (evento: Evento) => {
-          this.evento = {...evento};
-          this.form.patchValue(this.evento);
-
-          if (this.evento.imagemURL !== '')
-            this.imagemURL = environment.apiURL + 'resources/images/' + this.evento.imagemURL;
-
-          this.carregarLotes();
-        },
-        (error: any) => {
-          this.spinner.hide();
-          this.toaster.error('Erro ao tentar carregar Evento.', 'Erro!');
-          console.error(error);
-        },
-        () => this.spinner.hide(),
-      );
+      this.eventoService
+        .getEventoById(this.eventoId)
+        .subscribe(
+          (evento: Evento) => {
+            this.evento = { ...evento };
+            this.form.patchValue(this.evento);
+            if (this.evento.imagemURL !== '') {
+              this.imagemURL = environment.apiURL + 'resources/images/' + this.evento.imagemURL;
+            }
+            this.carregarLotes();
+          },
+          (error: any) => {
+            this.toastr.error('Erro ao tentar carregar Evento.', 'Erro!');
+            console.error(error);
+          }
+        )
+        .add(() => this.spinner.hide());
     }
   }
 
   public carregarLotes(): void {
-    this.loteService.getLotesByEventoId(this.eventoId).subscribe(
-      (lotesRetorno: Lote[]) => {
-        lotesRetorno.forEach(lote => {
-          this.lotes.push(this.criarLote(lote));
-        });
-      },
-      (error: any) => {
-        this.toaster.error('Erro ao tentar carregar lotes', 'Erro');
-        console.error(error);
-      },
-    ).add(() => this.spinner.hide());
+    this.loteService
+      .getLotesByEventoId(this.eventoId)
+      .subscribe(
+        (lotesRetorno: Lote[]) => {
+          lotesRetorno.forEach((lote) => {
+            this.lotes.push(this.criarLote(lote));
+          });
+        },
+        (error: any) => {
+          this.toastr.error('Erro ao tentar carregar lotes', 'Erro');
+          console.error(error);
+        }
+      )
+      .add(() => this.spinner.hide());
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.carregarEvento();
     this.validation();
   }
@@ -172,12 +156,12 @@ export class EventoDetalheComponent implements OnInit {
     });
   }
 
-  public retornaTituloLote(nome: string): string {
-    return nome === null || nome === '' ? 'Nome do lote' : nome;
-  }
-
   public mudarValorData(value: Date, indice: number, campo: string): void {
     this.lotes.value[indice][campo] = value;
+  }
+
+  public retornaTituloLote(nome: string): string {
+    return nome === null || nome === '' ? 'Nome do lote' : nome;
   }
 
   public resetForm(): void {
@@ -188,82 +172,75 @@ export class EventoDetalheComponent implements OnInit {
     return { 'is-invalid': campoForm.errors && campoForm.touched };
   }
 
-  public salvarAlteracao(): void {
+  public salvarEvento(): void {
     this.spinner.show();
-    if(this.form.valid){
+    if (this.form.valid) {
+      this.evento =
+        this.estadoSalvar === 'post'
+          ? { ...this.form.value }
+          : { id: this.evento.id, ...this.form.value };
 
-      if(this.estadoSalvar === 'post'){
-        this.evento = {...this.form.value};
-        this.eventoService.post(this.evento).subscribe(
-          (eventoRetorno: Evento) => {
-            this.toaster.success(`Evento salvo com Sucesso!`, `Sucesso`);
-            this.router.navigate([`eventos/detalhe/${eventoRetorno.id}`]);
-          },
-          (error: any) => {
-            console.error(error);
-            this.spinner.hide();
-            this.toaster.error('Erro ao salvar evento', 'Erro');
-          },
-          () => this.spinner.hide()
-        );
-
-      }else{
-        this.evento = {id: this.evento.id, ...this.form.value};
-        this.eventoService[this.estadoSalvar = 'put'](this.evento).subscribe(
-          () => this.toaster.success(`Evento salvo com Sucesso!`, `Sucesso`),
-          (error: any) => {
-            console.error(error);
-            this.spinner.hide();
-            this.toaster.error('Erro ao salvar evento', 'Erro');
-          },
-          () => this.spinner.hide()
-        );
-
-      }
+      this.eventoService[this.estadoSalvar](this.evento).subscribe(
+        (eventoRetorno: Evento) => {
+          this.toastr.success('Evento salvo com Sucesso!', 'Sucesso');
+          this.router.navigate([`eventos/detalhe/${eventoRetorno.id}`]);
+        },
+        (error: any) => {
+          console.error(error);
+          this.spinner.hide();
+          this.toastr.error('Error ao salvar evento', 'Erro');
+        },
+        () => this.spinner.hide()
+      );
     }
   }
 
   public salvarLotes(): void {
-    if (this.form.controls?.['lotes'].valid) {
+    if (this.form.controls.lotes.valid) {
       this.spinner.show();
-      this.loteService.saveLote(this.eventoId, this.form.value.lotes)
+      this.loteService
+        .saveLote(this.eventoId, this.form.value.lotes)
         .subscribe(
           () => {
-            this.toaster.success('Lotes salvos com sucesso!', 'Sucesso!');
+            this.toastr.success('Lotes salvos com Sucesso!', 'Sucesso!');
           },
           (error: any) => {
-            this.toaster.error('Erro ao tentar salvar lotes.', 'Erro');
+            this.toastr.error('Erro ao tentar salvar lotes.', 'Erro');
             console.error(error);
-          },
-        ).add(() => this.spinner.hide());
+          }
+        )
+        .add(() => this.spinner.hide());
     }
   }
 
-  public removerLote(template: TemplateRef<any>,
-                    indice: number): void {
+  public removerLote(template: TemplateRef<any>, indice: number): void {
+    this.loteAtual.id = this.lotes.get(indice + '.id').value;
+    this.loteAtual.nome = this.lotes.get(indice + '.nome').value;
+    this.loteAtual.indice = indice;
 
-    this.loteAtual!.id = this.lotes.get(indice + '.id')?.value;
-    this.loteAtual!.nome = this.lotes.get([indice] + '.nome')?.value;
-    this.loteAtual!.indice = indice;
-
-    this.modalRef = this.modalService.show(template, {class: 'modal-sm' });
+    this.modalRef = this.modalService.show(template, { class: 'modal-sm' });
   }
 
   confirmDeleteLote(): void {
     this.modalRef.hide();
     this.spinner.show();
 
-    this.loteService.deleteLote(this.eventoId, this.loteAtual!.id)
+    this.loteService
+      .deleteLote(this.eventoId, this.loteAtual.id)
       .subscribe(
         () => {
-          this.toaster.success('Lote deletado com sucesso.', 'Sucesso');
+          this.toastr.success('Lote deletado com sucesso', 'Sucesso');
           this.lotes.removeAt(this.loteAtual.indice);
         },
         (error: any) => {
-          this.toaster.error(`Erro ao tentar deletar o Lote ${this.loteAtual.id}`, 'Erro')
+          this.toastr.error(
+            `Erro ao tentar deletar o Lote ${this.loteAtual.id}`,
+            'Erro'
+          );
           console.error(error);
-        },
-      ).add(() => this.spinner.hide());
+        }
+      )
+      .add(() => this.spinner.hide());
   }
 
   declineDeleteLote(): void {
@@ -286,12 +263,12 @@ export class EventoDetalheComponent implements OnInit {
     this.eventoService.postUpload(this.eventoId, this.file).subscribe(
       () => {
         this.carregarEvento();
-        this.toaster.success('Imagem atualizada com sucesso', 'Sucesso!');
+        this.toastr.success('Imagem atualizada com Sucesso', 'Sucesso!');
       },
       (error: any) => {
-        this.toaster.error('Erro ao fazer upload de imagem', 'Erro!');
+        this.toastr.error('Erro ao fazer upload de imagem', 'Erro!');
         console.log(error);
-      },
+      }
     ).add(() => this.spinner.hide());
   }
 

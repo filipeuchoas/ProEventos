@@ -1,21 +1,26 @@
-﻿using AutoMapper;
-using ProEventos.Application.DTO;
+using System;
+using AutoMapper;
+using ProEventos.Application.Dtos;
 using ProEventos.Domain;
 using ProEventos.Domain.Identity;
+using ProEventos.Persistence.Models;
 
-namespace ProEventos.Application.Helpers
+namespace ProEventos.API.Helpers
 {
     public class ProEventosProfile : Profile
     {
-        public ProEventosProfile() {
-            CreateMap<Evento, EventoDTO>().ReverseMap();
-            CreateMap<Lote, LoteDTO>().ReverseMap();
-            CreateMap<Palestrante, PalestranteDTO>().ReverseMap();
-            CreateMap<RedeSocial, RedeSocialDTO>().ReverseMap();
+        public ProEventosProfile()
+        {
+            CreateMap<Evento, EventoDto>().ReverseMap();
+            CreateMap<Lote, LoteDto>().ReverseMap();
+            CreateMap<RedeSocial, RedeSocialDto>().ReverseMap();
+            CreateMap<Palestrante, PalestranteDto>().ReverseMap();
+            CreateMap<Palestrante, PalestranteAddDto>().ReverseMap();
+            CreateMap<Palestrante, PalestranteUpdateDto>().ReverseMap();
 
-            CreateMap<User, UserDTO>().ReverseMap();
-            CreateMap<User, UserLoginDTO>().ReverseMap();
-            CreateMap<User, UserUpdateDTO>().ReverseMap();
+            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<User, UserLoginDto>().ReverseMap();
+            CreateMap<User, UserUpdateDto>().ReverseMap();
         }
     }
 }

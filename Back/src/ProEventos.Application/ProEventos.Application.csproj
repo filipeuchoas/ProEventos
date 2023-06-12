@@ -1,19 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
-	  <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-	  <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.30.1" />
-	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.30.1" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProEventos.Domain\ProEventos.Domain.csproj" />
+    <ProjectReference Include="..\ProEventos.Persistence\ProEventos.Persistence.csproj" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\ProEventos.Domain\ProEventos.Domain.csproj" />
-		<ProjectReference Include="..\ProEventos.Persistence\ProEventos.Persistence.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.14.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.14.0" />
+  </ItemGroup>
 
 </Project>

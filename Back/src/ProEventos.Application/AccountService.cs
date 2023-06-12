@@ -1,12 +1,14 @@
-﻿using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProEventos.Application.Contratos;
-using ProEventos.Application.DTO;
+using ProEventos.Application.Dtos;
 using ProEventos.Domain.Identity;
 using ProEventos.Persistence.Contratos;
-using System;
-using System.Threading.Tasks;
 
 namespace ProEventos.Application
 {
@@ -28,54 +30,51 @@ namespace ProEventos.Application
             _userPersist = userPersist;
         }
 
-        public SignInManager<User> SignInManager { get; }
-
-        public async Task<SignInResult> CheckUserPasswordAsync(UserUpdateDTO userUpdateDTO, string password)
+        public async Task<SignInResult> CheckUserPasswordAsync(UserUpdateDto userUpdateDto, string password)
         {
             try
             {
                 var user = await _userManager.Users
-                    .SingleOrDefaultAsync(user => user.UserName == userUpdateDTO.UserName.ToLower());
-                return await _signInManager.CheckPasswordSignInAsync(user, password, true);
+                                             .SingleOrDefaultAsync(user => user.UserName == userUpdateDto.UserName.ToLower());
+
+                return await _signInManager.CheckPasswordSignInAsync(user, password, false);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 throw new Exception($"Erro ao tentar verificar password. Erro: {ex.Message}");
             }
         }
 
-        public async Task<UserUpdateDTO> CreateAccountAsync(UserDTO userDTO)
+        public async Task<UserUpdateDto> CreateAccountAsync(UserDto userDto)
         {
             try
             {
-                var user = _mapper.Map<User>(userDTO);
-                var result = await _userManager.CreateAsync(user, userDTO.Password);
+                var user = _mapper.Map<User>(userDto);
+                var result = await _userManager.CreateAsync(user, userDto.Password);
+
                 if (result.Succeeded)
                 {
-                    var userToReturn = _mapper.Map<UserUpdateDTO>(user);
+                    var userToReturn = _mapper.Map<UserUpdateDto>(user);
                     return userToReturn;
                 }
 
                 return null;
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                throw new Exception($"Erro ao tentar criar Usuário. Erro: {ex.Message}");
+                throw new Exception($"Erro ao tentar Criar Usuário. Erro: {ex.Message}");
             }
         }
 
-        public async Task<UserUpdateDTO> GetUserByUserNameAsync(string userName)
+        public async Task<UserUpdateDto> GetUserByUserNameAsync(string userName)
         {
             try
             {
                 var user = await _userPersist.GetUserByUserNameAsync(userName);
-                if(user == null)
-                {
-                    return null;
-                }
+                if (user == null) return null;
 
-                var userUpdateDTO = _mapper.Map<UserUpdateDTO>(user);
-                return userUpdateDTO;
+                var userUpdateDto = _mapper.Map<UserUpdateDto>(user);
+                return userUpdateDto;
             }
             catch (System.Exception ex)
             {
@@ -83,22 +82,20 @@ namespace ProEventos.Application
             }
         }
 
-        public async Task<UserUpdateDTO> UpdateAccountAsync(UserUpdateDTO userUpdateDTO)
+        public async Task<UserUpdateDto> UpdateAccount(UserUpdateDto userUpdateDto)
         {
             try
             {
-                var user = await _userPersist.GetUserByUserNameAsync(userUpdateDTO.UserName);
+                var user = await _userPersist.GetUserByUserNameAsync(userUpdateDto.UserName);
                 if (user == null) return null;
 
-                userUpdateDTO.Id = user.Id;
+                userUpdateDto.Id = user.Id;
 
-                _mapper.Map(userUpdateDTO, user);
+                _mapper.Map(userUpdateDto, user);
 
-                if (userUpdateDTO.Password != null)
-                {
-
+                if (userUpdateDto.Password != null) {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                    await _userManager.ResetPasswordAsync(user, token, userUpdateDTO.Password);
+                    await _userManager.ResetPasswordAsync(user, token, userUpdateDto.Password);
                 }
 
                 _userPersist.Update<User>(user);
@@ -106,7 +103,8 @@ namespace ProEventos.Application
                 if (await _userPersist.SaveChangesAsync())
                 {
                     var userRetorno = await _userPersist.GetUserByUserNameAsync(user.UserName);
-                    return _mapper.Map<UserUpdateDTO>(userRetorno);
+
+                    return _mapper.Map<UserUpdateDto>(userRetorno);
                 }
 
                 return null;
@@ -117,7 +115,7 @@ namespace ProEventos.Application
             }
         }
 
-        public async Task<bool> UserExist(string userName)
+        public async Task<bool> UserExists(string userName)
         {
             try
             {

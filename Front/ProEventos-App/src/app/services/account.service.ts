@@ -1,17 +1,17 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { User } from '@app/models/identity/User';
-import { UserUpdate } from '@app/models/identity/UserUpdate';
+import { HttpClient } from '@angular/common/http';
+import { Observable, ReplaySubject } from 'rxjs';
 import { environment } from '@environments/environment';
-import { Observable, ReplaySubject, map, take } from 'rxjs';
+import { User } from '@app/models/identity/User';
+import { map, take } from 'rxjs/operators';
+import { UserUpdate } from '../models/identity/UserUpdate';
 
 @Injectable()
 export class AccountService {
   private currentUserSource = new ReplaySubject<User>(1);
   public currentUser$ = this.currentUserSource.asObservable();
 
-  baseUrl = environment.apiURL + 'api/account/';
-
+  baseUrl = environment.apiURL + 'api/account/'
   constructor(private http: HttpClient) { }
 
   public login(model: any): Observable<void> {
@@ -54,7 +54,7 @@ export class AccountService {
 
   logout(): void {
     localStorage.removeItem('user');
-    this.currentUserSource.next(null!);
+    this.currentUserSource.next(null);
     this.currentUserSource.complete();
   }
 
@@ -63,4 +63,13 @@ export class AccountService {
     this.currentUserSource.next(user);
   }
 
+  postUpload(file: File): Observable<UserUpdate> {
+    const fileToUpload = file[0] as File;
+    const formData = new FormData();
+    formData.append('file', fileToUpload);
+
+    return this.http
+      .post<UserUpdate>(`${this.baseUrl}upload-image`, formData)
+      .pipe(take(1));
+  }
 }

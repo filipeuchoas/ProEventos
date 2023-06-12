@@ -1,4 +1,4 @@
-﻿namespace ProEventos.Domain.Enum
+namespace ProEventos.Domain.Enum
 {
     public enum Titulo
     {
@@ -6,7 +6,7 @@
         Tecnologo,
         Bacharel,
         Especialista,
-        PosGraduacao,
+        PosGraduado,
         Mestrado,
         Doutorado,
         PosDoutorado

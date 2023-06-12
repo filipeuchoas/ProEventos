@@ -1,9 +1,9 @@
-﻿namespace ProEventos.Domain.Enum
+namespace ProEventos.Domain.Enum
 {
     public enum Funcao
     {
         NaoInformado,
         Participante,
-        Palestratante
+        Palestrante
     }
 }
