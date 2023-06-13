@@ -17,7 +17,7 @@ namespace ProEventos.Application.Contratos
         Task<RedeSocialDto[]> GetAllByEventoIdAsync(int eventoId);
         Task<RedeSocialDto[]> GetAllByPalestranteIdAsync(int palestranteId);
 
-        Task<RedeSocialDto> GetRedeSocialEventoByIdsAsync(int eventoId, int RedeSocialId);
-        Task<RedeSocialDto> GetRedeSocialPalestranteByIdsAsync(int PalestranteId, int RedeSocialId);
+        Task<RedeSocialDto> GetRedeSocialEventoByIdsAsync(int eventoId, int redeSocialId);
+        Task<RedeSocialDto> GetRedeSocialPalestranteByIdsAsync(int palestranteId, int redeSocialId);
     }
 }

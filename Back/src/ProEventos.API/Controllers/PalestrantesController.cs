@@ -1,15 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using ProEventos.Application.Contratos;
-using Microsoft.AspNetCore.Http;
-using ProEventos.Application.Dtos;
-using System.IO;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using ProEventos.API.Extensions;
-using Microsoft.AspNetCore.Authorization;
+using ProEventos.Application.Contratos;
+using ProEventos.Application.Dtos;
 using ProEventos.Persistence.Models;
+using System;
+using System.Threading.Tasks;
 
 namespace ProEventos.API.Controllers
 {

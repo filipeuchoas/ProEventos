@@ -25,19 +25,19 @@ namespace ProEventos.Application
         {
             try
             {
-                var RedeSocial = _mapper.Map<RedeSocial>(model);
+                var redeSocial = _mapper.Map<RedeSocial>(model);
                 if (isEvento)
                 {
-                    RedeSocial.EventoId = Id;
-                    RedeSocial.PalestranteId = null;
+                    redeSocial .EventoId = Id;
+                    redeSocial.PalestranteId = null;
                 } 
                 else
                 {
-                    RedeSocial.EventoId = null;
-                    RedeSocial.PalestranteId = Id;
+                    redeSocial .EventoId = null;
+                    redeSocial.PalestranteId = Id;
                 }
 
-                _redeSocialPersist.Add<RedeSocial>(RedeSocial);
+                _redeSocialPersist.Add<RedeSocial>(redeSocial);
 
                 await _redeSocialPersist.SaveChangesAsync();
             }
